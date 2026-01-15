@@ -49,7 +49,7 @@ class Mold {
 
     getEn = fft.getEnergy("bass");
 
-    let mapBass = map(getEn, 0, 300, -10, 5);
+    let mapBass = map(getEn, 0, 300, -100, 100);
     console.log("getEn:", getEn);
 
     let freqTurn = map(smoothPitch, 5, 255, -10, 5);
