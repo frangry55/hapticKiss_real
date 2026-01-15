@@ -4,7 +4,6 @@ let circleColourRed;
 let circleColourGreen;
 let circleColourBlue;
 
-
 //sound input
 let audioContextOn = false;
 let sound;
