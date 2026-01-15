@@ -1,13 +1,12 @@
 // Vira, P. (2024) p5.js Coding Tutorial | Slime Molds (Physarum). 23 February. Available at: https://www.youtube.com/watch?v=VyXxSNcgDtg
 // Vira, P. (2024) Slime Molds. Available at: https://p5js.org/sketches/2213463/
-
+  
 class Mold {
 
   constructor() {
 
     //location of mould
-    this.x = width / 2;
-    this.y = height / 2;
+    this.pos = createVector(width/2, height/2);
 
     // radius
     this.r = 0.25;
@@ -16,19 +15,18 @@ class Mold {
     this.heading = random(360);
 
     //angle mould takes
-    this.rotAngle = random(30, 90);
+    this.rotAngle = random(360);
 
     // polar to cartesian cooridnates
-    this.vx = cos(this.heading);
-    this.vy = sin(this.heading);
+    this.vel = createVector(cos(this.heading), sin(this.heading))
 
     // declaring variables for the sensing components - vectors hold 2x values. we need a left, center and right sensor to determine which direction the slime mould will move
     this.rSensorPos = createVector(0, 0);
     this.fSensorPos = createVector(0, 0);
     this.lSensorPos = createVector(0, 0);
 
-    this.sensorAngle = 15;
-    this.sensorDist = 15;
+    this.sensorAngle = 90;
+    this.sensorDist = random(30, 70);
 
   }
 
@@ -38,8 +36,8 @@ class Mold {
     let stepSize = 0;
 
     // Drawing pauses when mic vol is below certain level
-    if (vol > 0.01) {
-      stepSize = map(vol, 0.01, 0.2, 0.5, 7);
+    if (vol > 0.03) {
+      stepSize = map(vol, 0.01, 0.25, 0.5, 1);
     } else {
       stepSize = 0;
     }
@@ -49,38 +47,43 @@ class Mold {
       smoothPitch = lerp(smoothPitch, currentPitch, 0.05);
     }
 
-    let freqTurn = map(smoothPitch, 5, 255, -10, 5);
-    this.heading += freqTurn;
+    getEn = fft.getEnergy("bass");
 
-    this.vx = cos(this.heading) * stepSize;
-    this.vy = sin(this.heading) * stepSize;
+    let mapBass = map(getEn, 0, 300, -10, 5);
+    console.log("getEn:", getEn);
+
+    let freqTurn = map(smoothPitch, 5, 255, -10, 5);
+    this.heading += mapBass;
+
+    this.vel.x = cos(this.heading) * stepSize;
+    this.vel.y = sin(this.heading) * stepSize;
 
     // Only update position if we are moving
-    this.x += this.vx;
-    this.y += this.vy;
+    this.pos.x += this.vel.x;
+    this.pos.y += this.vel.y;
 
-    console.log("this.x", this.x);
-    console.log("this.y", this.y);
+    // console.log("this.x", this.pos.x);
+    // console.log("this.y", this.pos.y);
 
     if (stepSize > 0.1) {
       //sensing conditions based on current position of the slime mold
-      this.rSensorPos.x = this.x +
+      this.rSensorPos.x = this.pos.x +
         this.sensorDist * cos(this.heading + this.sensorAngle);
-      this.rSensorPos.y = this.y +
+      this.rSensorPos.y = this.pos.y +
         this.sensorDist * sin(this.heading + this.sensorAngle);
       this.sensorDist * sin(this.heading + this.sensorAngle);
 
-      this.lSensorPos.x = this.x +
+      this.lSensorPos.x = this.pos.x +
         this.sensorDist * sin(this.heading + this.sensorAngle);
       this.sensorDist * cos(this.heading - this.sensorAngle);
-      this.lSensorPos.y = this.y +
+      this.lSensorPos.y = this.pos.y +
         this.sensorDist * sin(this.heading + this.sensorAngle);
       this.sensorDist * sin(this.heading - this.sensorAngle);
 
-      this.fSensorPos.x = this.x +
+      this.fSensorPos.x = this.pos.x +
         this.sensorDist * sin(this.heading + this.sensorAngle);
       this.sensorDist * cos(this.heading);
-      this.fSensorPos.y = this.y +
+      this.fSensorPos.y = this.pos.y +
         this.sensorDist * sin(this.heading + this.sensorAngle);
       this.sensorDist * sin(this.heading);
 
@@ -114,17 +117,17 @@ class Mold {
   }
 
   edges() {
-    if (this.x >= width) {
-      this.x = 1;
+    if (this.pos.x >= width) {
+      this.pos.x = 1;
     }
-    if (this.x <= 0) {
-      this.x = width;
+    if (this.pos.x <= 0) {
+      this.pos.x = width;
     }
-    if (this.y >= height) {
-      this.y = 1;
+    if (this.pos.y >= height) {
+      this.pos.y = 1;
     }
-    if (this.y <= 0) {
-      this.y = height - 1;
+    if (this.pos.y <= 0) {
+      this.pos.y = height - 1;
     }
   }
 
@@ -139,7 +142,7 @@ class Mold {
 
     strokeWeight(circleSize);
     stroke(circleColourRed, circleColourGreen, circleColourBlue, circleAlpha);
-    ellipse(this.x, this.y, this.r * 2, this.r * 2);
+    ellipse(this.pos.x, this.pos.y, this.r * 2, this.r * 2);
 
   }
 }

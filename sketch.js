@@ -3,7 +3,7 @@ let circleAlpha;
 let circleColourRed;
 let circleColourGreen;
 let circleColourBlue;
-
+  
 //sound input
 let audioContextOn = false;
 let sound;
@@ -17,10 +17,11 @@ let pitch;
 let mic;
 let currentPitch = 0;
 let smoothPitch = 0;
+let getEn;
 
 //testing slime mould with voice
 let molds = [];
-let numMolds = 200;
+let numMolds = 505;
 let d;
 
 function setup() {
@@ -62,10 +63,14 @@ function draw() {
     let level = mic.getLevel();
     console.log("mic.level:", level);
 
+     let spectralCentroid = fft.getCentroid();
+
     //smooth the pitch value using limear interpolation
     if (currentPitch > 0) {
       smoothPitch = lerp(smoothPitch, currentPitch, 0.05);
     }
+
+   
 
     console.log("smooth:", smoothPitch);
 
