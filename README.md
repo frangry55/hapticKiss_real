@@ -56,15 +56,15 @@ Performance is most effective in a dark space. Please turn off all lights - apar
 # IMAGES
 Screenshots:
 This should be the waiting screen
-![loading screen for hapticKiss](image.png)
+![loading screen for hapticKiss](loadingPage.png)
 
 Wait until performer is ready and lights are out, then press the 'f' key to trigger the start of the performance.
 
-![volume too low](image-1.png)
+![volume too low](volumeControl.png)
 If the visuals start like this before the performer starts speaking, raise the input volume level in the if statament as shown in *SPACE & SOUND*. Test and repeat until background noise no longer triggers the visuals.
 
-![volume correct, performance can start](image-2.png)
-![halfway through performance](image-3.png)
+![volume correct, performance can start](hapticKiss_correct.png)
+![halfway through performance](hapticKiss_performance.png)
 If all is correct, the performance should look like this.
 
 
