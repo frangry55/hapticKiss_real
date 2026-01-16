@@ -1,3 +1,5 @@
+let easyCam;
+
 let circleSize = 1;
 let circleAlpha;
 let circleColourRed;
@@ -26,7 +28,8 @@ let d;
 
 function setup() {
   createCanvas(windowWidth, windowHeight, WEBGL);
-  background(0);
+
+  easyCam = createEasyCam();
 
     // push();
     // noFill();
@@ -58,7 +61,7 @@ function setup() {
 
 function draw() {
 
-  orbitControl();
+  background(255);
 
   if (audioContextOn) {
   

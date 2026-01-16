@@ -1,24 +1,29 @@
 // Vira, P. (2024) p5.js Coding Tutorial | Slime Molds (Physarum). 23 February. Available at: https://www.youtube.com/watch?v=VyXxSNcgDtg
 // Vira, P. (2024) Slime Molds. Available at: https://p5js.org/sketches/2213463/
-  
+
 class Mold {
 
   constructor() {
 
     //location of mould
-    this.pos = createVector(width/2, height/2, 0);
+    this.pos = createVector(0, 0, 0);
+
+    //rhistory to remember the trail in 3D
+    this.history = [];
+    this.maxHistory = 100;
 
     // radius
     this.r = 0.25;
 
     //direction / angle it is heading in
-    this.heading = random(360);
+    this.theta = random(360);
+    this.phi = random(360);
 
     //angle mould takes
     this.rotAngle = random(360);
 
     // polar to cartesian cooridnates
-    this.vel = createVector(cos(this.heading), sin(this.heading), sin(this.heading))
+    this.vel = createVector(0, 0, 0)
 
     // declaring variables for the sensing components - vectors hold 2x values. we need a left, center and right sensor to determine which direction the slime mould will move
     this.rSensorPos = createVector(0, 0);
@@ -59,95 +64,76 @@ class Mold {
     let freqTurn = map(smoothPitch, 5, 255, -10, 5);
     this.heading += mapBass;
 
-    this.vel.x = cos(this.heading) * stepSize;
-    this.vel.y = sin(this.heading) * stepSize;
-    this.vel.z = sin(this.heading) * stepSize;
+    let dir = p5.Vector.fromAngles(radians(this.theta), radians(this.phi));
+    this.vel = dir.copy().mult(stepSize);
 
     // Only update position if we are moving
-    this.pos.x += this.vel.x;
-    this.pos.y += this.vel.y;
-    this.pos.z += this.vel.z;
+    this.pos.add(this.vel);
 
-    // console.log("this.x", this.pos.x);
-    // console.log("this.y", this.pos.y);
+    //save current positions to history
+    this.history.push(this.pos.copy());
 
-    if (stepSize > 0.1) {
-      //sensing conditions based on current position of the slime mold
-      this.rSensorPos.x = this.pos.x +
-        this.sensorDist * cos(this.heading + this.sensorAngle);
-      this.rSensorPos.y = this.pos.y +
-        this.sensorDist * sin(this.heading + this.sensorAngle);
-      this.rSensorPos.z = this.pos.z +
-        this.sensorDist * sin(this.heading + this.sensorAngle);  
-      this.sensorDist * sin(this.heading + this.sensorAngle);
+    //remove from history if too long
+    if(this.history.length > this.maxHistory){
+      this.history.shift();
+    }
 
-      this.lSensorPos.x = this.pos.x +
-        this.sensorDist * sin(this.heading + this.sensorAngle);
-      this.sensorDist * cos(this.heading - this.sensorAngle);
-      this.lSensorPos.y = this.pos.y +
-        this.sensorDist * sin(this.heading + this.sensorAngle);
-      this.lSensorPos.z = this.pos.z +
-        this.sensorDist * sin(this.heading + this.sensorAngle);
-      this.sensorDist * sin(this.heading - this.sensorAngle);
+    //sensor directions
+    let fDir = p5.Vector.fromAngles(radians(this.theta), radians(this.phi));
+    this.fSensorPos = p5.Vector.add(this.pos, fDir.mult(this.sensorDist));
 
-      this.fSensorPos.x = this.pos.x +
-        this.sensorDist * sin(this.heading + this.sensorAngle);
-      this.sensorDist * cos(this.heading);
-      this.fSensorPos.y = this.pos.y +
-        this.sensorDist * sin(this.heading + this.sensorAngle);
-      this.sensorDist * sin(this.heading);
-      this.fSensorPos.z = this.pos.z+
-        this.sensorDist * sin(this.heading + this.sensorAngle);
-      this.sensorDist * sin(this.heading);  
+    let lDir = p5.Vector.fromAngles(radians(this.theta - this.sensorAngle), radians(this.phi));
+    this.lSensorPos = p5.Vector.add(this.pos, lDir.mult(this.sensorDist));
 
-      let index;
-      let l;
-      let f;
-      let r;
+    // Right Sensor (Rotate theta)
+    let rDir = p5.Vector.fromAngles(radians(this.theta + this.sensorAngle), radians(this.phi));
+    this.rSensorPos = p5.Vector.add(this.pos, rDir.mult(this.sensorDist));
 
-      index = 4 * (d * floor(this.rSensorPos.y)) * (d * width) + 4 * (d * floor(this.rSensorPos.x));
-      r = pixels[index];
+    let fVal = this.getPixelVal(this.fSensorPos.x, this.fSensorPos.y);
+    let lVal = this.getPixelVal(this.lSensorPos.x, this.lSensorPos.y);
+    let rVal = this.getPixelVal(this.rSensorPos.x, this.rSensorPos.y);
 
-      index = 4 * (d * floor(this.lSensorPos.y)) * (d * width) + 4 * (d * floor(this.lSensorPos.x));
-      l = pixels[index];
-
-      index = 4 * (d * floor(this.fSensorPos.y)) * (d * width) + 4 * (d * floor(this.fSensorPos.x));
-      f = pixels[index];
-
-      //deciding which direction the mould will take
-      if (f > l && f > r) {
-        this.heading += 0;
-      } else if (f < l && f < r) {
-        if (random(1) < 0.5) {
-          this.heading += this.rotAngle;
-        }
-      } else if (l > r) {
-        this.heading += -this.rotAngle;
-      } else if (r > l) {
-        this.heading += this.rotAngle;
-      }
+    if (fVal > lVal && fVal > rVal) {
+      //do nothing
+    } else if (fVal < lVal && fVal < rVal) {
+      this.theta += random(-this.rotAngle, this.rotAngle);
+      this.phi += random(-this.rotAngle, this.rotAngle);
+    } else if (lVal > rVal) {
+      this.theta -= this.rotAngle;
+    } else if (rVal > lVal) {
+      this.theta += this.rotAngle;
     }
   }
 
+  getPixelVal(x, y) {
+    // 1. Offset coordinates because WEBGL 0,0 is center, but Image 0,0 is top-left
+    let px = floor(x + width / 2);
+    let py = floor(y + height / 2);
+
+    // 2. Check bounds so we don't crash
+    if (px < 0 || px >= width || py < 0 || py >= height) {
+      return 0;
+    }
+
+    // 3. Get pixel index
+    // Note: 'd' is pixelDensity from your main sketch
+    let index = 4 * (d * py) * (d * width) + 4 * (d * px);
+
+    // Return the Red channel value (0-255)
+    return pixels[index];
+  }
+
+
   edges() {
-    if (this.pos.x >= 200) {
-      this.pos.x = -200;
-    }
-    if (this.pos.x <= 200) {
-      this.pos.x = -200;
-    }
-    if (this.pos.y >= 200) {
-      this.pos.y = -200;
-    }
-    if (this.pos.y <= -200) {
-      this.pos.y = 200;
-    }
-    if(this.pos.z <= - 200){
-      this.pos.z = 200;
-    }
-    if(this.pos.z >= 200){
-      this.pos.z = -200;
-    }
+
+    let boxSize = 200;
+    if (this.pos.x > boxSize) this.pos.x = -boxSize;
+    if (this.pos.x < -boxSize) this.pos.x = boxSize;
+    if (this.pos.y > boxSize) this.pos.y = -boxSize;
+    if (this.pos.y < -boxSize) this.pos.y = boxSize;
+    if (this.pos.z > boxSize) this.pos.z = -boxSize;
+    if (this.pos.z < -boxSize) this.pos.z = boxSize;
+
   }
 
   //displaying the slime mould
@@ -158,6 +144,15 @@ class Mold {
     circleColourRed = map(smoothPitch, 50, 255, 0, 255);
     circleColourGreen = map(smoothPitch, 50, 255, 0, 105);
     circleColourBlue = map(smoothPitch, 50, 255, 0, 105);
+
+    //draw hiatory lines
+    beginShape();
+    for(let i = 0; i < this.history.length; i++){
+      let v = this.history[i];
+      vertex(v.x, v.y, v.z);
+    }
+    vertex(this.pos.x, this.pos.y, this.pos.z);
+    endShape();
 
     strokeWeight(circleSize);
     stroke(circleColourRed, circleColourGreen, circleColourBlue, circleAlpha);
