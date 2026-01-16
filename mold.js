@@ -108,7 +108,7 @@ class Mold {
     let index = 4 * (d * py) * (d * width) + 4 * (d * px);
 
     // Return the Red channel value (0-255)
-    return pixels[index];
+    return simBuffer.pixels[index];
   }
 
 
@@ -125,7 +125,7 @@ class Mold {
   }
 
   //displaying the slime mould
-  display() {
+  display(pg) {
 
     circleSize = map(smoothPitch, 50, 355, 0.1, 7);
     circleAlpha = map(smoothPitch, 50, 355, 10, 150);
@@ -133,14 +133,15 @@ class Mold {
     circleColourGreen = map(smoothPitch, 50, 255, 0, 105);
     circleColourBlue = map(smoothPitch, 50, 255, 0, 105);
 
-    push();
-    strokeWeight(circleSize);
-    fill(circleColourRed, circleColourGreen, circleColourBlue, circleAlpha);
-    strokeWeight(1);
-    stroke(circleColourRed, circleColourGreen, circleColourBlue, circleAlpha);
-    translate(this.pos.x, this.pos.y, this.pos.z);
-    sphere(this.r, 10, 10);
-    pop();
+    pg.push();
+    pg.hint(pg.DISABLE_DEPTH_TEST);
+    pg.strokeWeight(circleSize);
+    pg.fill(circleColourRed, circleColourGreen, circleColourBlue, circleAlpha);
+    pg.strokeWeight(1);
+    pg.stroke(circleColourRed, circleColourGreen, circleColourBlue, circleAlpha);
+    pg.translate(this.pos.x, this.pos.y, this.pos.z);
+    pg.point(0, 0);
+    pg.pop();
 
   }
 }

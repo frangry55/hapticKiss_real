@@ -1,5 +1,7 @@
 let easyCam;
 
+let simBuffer;
+
 let circleSize = 1;
 let circleAlpha;
 let circleColourRed;
@@ -31,6 +33,10 @@ function setup() {
 
   easyCam = createEasyCam();
 
+  //offscreen buffer for simulation
+  simBuffer = createGraphics(windowWidth, windowHeight, WEBGL);
+  simBuffer.pixelDensity(pixelDensity());
+
   //suspend audio context because it won't be able to start until the user starts it in VS Code
   //Aston, R. (no date) MicrophoneVolume. Available at: https://editor.p5js.org/beckyaston/sketches/spJnV30qW
   getAudioContext().suspend();
@@ -54,9 +60,27 @@ function setup() {
 
 function draw() {
 
-  if (audioContextOn) {
+  if(!audioContextOn){
+    background(255);
+    fill(0);
+    text("press ' f ' to activate mic and enter fullscreen", 20, 20)
+    return;
+  }
 
-    background(255, 1);
+  simBuffer.push();
+  simBuffer.background(255, 1);
+ 
+
+   for (let i = 0; i < numMolds; i++) {
+      molds[i].update();
+      molds[i].edges();
+      molds[i].display(simBuffer);
+    }
+   
+  simBuffer.loadPixels();
+  simBuffer.pop();
+
+  background(255);
 
     push();  
     rotateZ(45);
@@ -66,14 +90,15 @@ function draw() {
     box(400);
     pop();
 
+  // Draw simulation as a textured plane
+  push();
+  texture(simBuffer);
+  noStroke();
+  plane(width, height);
+  pop();
 
-    loadPixels();
 
-    for (let i = 0; i < numMolds; i++) {
-      molds[i].update();
-      molds[i].edges();
-      molds[i].display();
-    }
+  
 
     //testing mic input
     let level = mic.getLevel();
@@ -86,17 +111,10 @@ function draw() {
       smoothPitch = lerp(smoothPitch, currentPitch, 0.05);
     }
 
-
-
     console.log("smooth:", smoothPitch);
 
     let spectrum = fft.analyze(); //essential
 
-  } else {
-    background(255);
-    fill(0);
-    text("press ' f ' to activate mic and enter fullscreen", 20, 20)
-  }
 }
 
 
