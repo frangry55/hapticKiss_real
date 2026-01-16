@@ -25,8 +25,15 @@ let numMolds = 155;
 let d;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight, WEBGL);
   background(0);
+
+    // push();
+    // noFill();
+    // stroke(0);
+    // strokeWeight(1);
+    //  box(400);
+    //  pop();
 
   //suspend audio context because it won't be able to start until the user starts it in VS Code
   //Aston, R. (no date) MicrophoneVolume. Available at: https://editor.p5js.org/beckyaston/sketches/spJnV30qW
@@ -45,11 +52,16 @@ function setup() {
   for (let i = 0; i < numMolds; i++) {
     molds[i] = new Mold();
   }
+
+ 
 }
 
 function draw() {
 
+  orbitControl();
+
   if (audioContextOn) {
+  
 
     loadPixels();
 

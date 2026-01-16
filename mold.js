@@ -6,7 +6,7 @@ class Mold {
   constructor() {
 
     //location of mould
-    this.pos = createVector(width/2, height/2);
+    this.pos = createVector(width/2, height/2, 0);
 
     // radius
     this.r = 0.25;
@@ -18,12 +18,16 @@ class Mold {
     this.rotAngle = random(360);
 
     // polar to cartesian cooridnates
-    this.vel = createVector(cos(this.heading), sin(this.heading))
+    this.vel = createVector(cos(this.heading), sin(this.heading), sin(this.heading))
 
     // declaring variables for the sensing components - vectors hold 2x values. we need a left, center and right sensor to determine which direction the slime mould will move
     this.rSensorPos = createVector(0, 0);
     this.fSensorPos = createVector(0, 0);
     this.lSensorPos = createVector(0, 0);
+
+    //adding 3rd dimension
+    this.uSensorPos = createVector(0, 0);
+    this.dSensorPos = createVector(0, 0);
 
     this.sensorAngle = 90;
     this.sensorDist = random(30, 70);
@@ -57,10 +61,12 @@ class Mold {
 
     this.vel.x = cos(this.heading) * stepSize;
     this.vel.y = sin(this.heading) * stepSize;
+    this.vel.z = sin(this.heading) * stepSize;
 
     // Only update position if we are moving
     this.pos.x += this.vel.x;
     this.pos.y += this.vel.y;
+    this.pos.z += this.vel.z;
 
     // console.log("this.x", this.pos.x);
     // console.log("this.y", this.pos.y);
@@ -71,12 +77,16 @@ class Mold {
         this.sensorDist * cos(this.heading + this.sensorAngle);
       this.rSensorPos.y = this.pos.y +
         this.sensorDist * sin(this.heading + this.sensorAngle);
+      this.rSensorPos.z = this.pos.z +
+        this.sensorDist * sin(this.heading + this.sensorAngle);  
       this.sensorDist * sin(this.heading + this.sensorAngle);
 
       this.lSensorPos.x = this.pos.x +
         this.sensorDist * sin(this.heading + this.sensorAngle);
       this.sensorDist * cos(this.heading - this.sensorAngle);
       this.lSensorPos.y = this.pos.y +
+        this.sensorDist * sin(this.heading + this.sensorAngle);
+      this.lSensorPos.z = this.pos.z +
         this.sensorDist * sin(this.heading + this.sensorAngle);
       this.sensorDist * sin(this.heading - this.sensorAngle);
 
@@ -86,6 +96,9 @@ class Mold {
       this.fSensorPos.y = this.pos.y +
         this.sensorDist * sin(this.heading + this.sensorAngle);
       this.sensorDist * sin(this.heading);
+      this.fSensorPos.z = this.pos.z+
+        this.sensorDist * sin(this.heading + this.sensorAngle);
+      this.sensorDist * sin(this.heading);  
 
       let index;
       let l;
@@ -117,17 +130,23 @@ class Mold {
   }
 
   edges() {
-    if (this.pos.x >= width) {
-      this.pos.x = 1;
+    if (this.pos.x >= 200) {
+      this.pos.x = -200;
     }
-    if (this.pos.x <= 0) {
-      this.pos.x = width;
+    if (this.pos.x <= 200) {
+      this.pos.x = -200;
     }
-    if (this.pos.y >= height) {
-      this.pos.y = 1;
+    if (this.pos.y >= 200) {
+      this.pos.y = -200;
     }
-    if (this.pos.y <= 0) {
-      this.pos.y = height - 1;
+    if (this.pos.y <= -200) {
+      this.pos.y = 200;
+    }
+    if(this.pos.z <= - 200){
+      this.pos.z = 200;
+    }
+    if(this.pos.z >= 200){
+      this.pos.z = -200;
     }
   }
 
