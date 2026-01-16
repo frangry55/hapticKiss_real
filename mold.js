@@ -37,7 +37,7 @@ class Mold {
 
     // Drawing pauses when mic vol is below certain level
     if (vol > 0.03) {
-      stepSize = map(vol, 0.01, 0.25, 0.5, 1);
+      stepSize = map(vol, 0.01, 0.25, 0.5, 2);
     } else {
       stepSize = 0;
     }
@@ -49,7 +49,7 @@ class Mold {
 
     getEn = fft.getEnergy("bass");
 
-    let mapBass = map(getEn, 0, 300, -100, 100);
+    let mapBass = map(getEn, 0, 250, -20, 20);
     console.log("getEn:", getEn);
 
     let freqTurn = map(smoothPitch, 5, 255, -10, 5);

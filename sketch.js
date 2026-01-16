@@ -21,7 +21,7 @@ let getEn;
 
 //testing slime mould with voice
 let molds = [];
-let numMolds = 105;
+let numMolds = 155;
 let d;
 
 function setup() {
