@@ -5,7 +5,7 @@ let circleAlpha;
 let circleColourRed;
 let circleColourGreen;
 let circleColourBlue;
-  
+
 //sound input
 let audioContextOn = false;
 let sound;
@@ -31,13 +31,6 @@ function setup() {
 
   easyCam = createEasyCam();
 
-    // push();
-    // noFill();
-    // stroke(0);
-    // strokeWeight(1);
-    //  box(400);
-    //  pop();
-
   //suspend audio context because it won't be able to start until the user starts it in VS Code
   //Aston, R. (no date) MicrophoneVolume. Available at: https://editor.p5js.org/beckyaston/sketches/spJnV30qW
   getAudioContext().suspend();
@@ -56,15 +49,23 @@ function setup() {
     molds[i] = new Mold();
   }
 
- 
+
 }
 
 function draw() {
 
-  background(255);
-
   if (audioContextOn) {
-  
+
+    background(255, 1);
+
+    push();  
+    rotateZ(45);
+    stroke(0);
+    noFill();
+    strokeWeight(1);
+    box(400);
+    pop();
+
 
     loadPixels();
 
@@ -78,14 +79,14 @@ function draw() {
     let level = mic.getLevel();
     console.log("mic.level:", level);
 
-     let spectralCentroid = fft.getCentroid();
+    let spectralCentroid = fft.getCentroid();
 
     //smooth the pitch value using limear interpolation
     if (currentPitch > 0) {
       smoothPitch = lerp(smoothPitch, currentPitch, 0.05);
     }
 
-   
+
 
     console.log("smooth:", smoothPitch);
 

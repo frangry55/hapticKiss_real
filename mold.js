@@ -8,15 +8,11 @@ class Mold {
     //location of mould
     this.pos = createVector(0, 0, 0);
 
-    //rhistory to remember the trail in 3D
-    this.history = [];
-    this.maxHistory = 100;
-
     // radius
     this.r = 0.25;
 
     //direction / angle it is heading in
-    this.theta = random(360);
+    this.theta = random(180);
     this.phi = random(360);
 
     //angle mould takes
@@ -35,7 +31,7 @@ class Mold {
     this.dSensorPos = createVector(0, 0);
 
     this.sensorAngle = 90;
-    this.sensorDist = random(30, 70);
+    this.sensorDist = random(2);
 
   }
 
@@ -69,14 +65,6 @@ class Mold {
 
     // Only update position if we are moving
     this.pos.add(this.vel);
-
-    //save current positions to history
-    this.history.push(this.pos.copy());
-
-    //remove from history if too long
-    if(this.history.length > this.maxHistory){
-      this.history.shift();
-    }
 
     //sensor directions
     let fDir = p5.Vector.fromAngles(radians(this.theta), radians(this.phi));
@@ -126,13 +114,13 @@ class Mold {
 
   edges() {
 
-    let boxSize = 200;
-    if (this.pos.x > boxSize) this.pos.x = -boxSize;
-    if (this.pos.x < -boxSize) this.pos.x = boxSize;
-    if (this.pos.y > boxSize) this.pos.y = -boxSize;
-    if (this.pos.y < -boxSize) this.pos.y = boxSize;
-    if (this.pos.z > boxSize) this.pos.z = -boxSize;
-    if (this.pos.z < -boxSize) this.pos.z = boxSize;
+    let boxSize = createVector(width, height, height);
+    if (this.pos.x > boxSize.x) this.pos.x = -boxSize.x;
+    if (this.pos.x < -boxSize.x) this.pos.x = boxSize.x;
+    if (this.pos.y > boxSize.y) this.pos.y = -boxSize.y;
+    if (this.pos.y < -boxSize.y) this.pos.y = boxSize.y;
+    if (this.pos.z > boxSize.z) this.pos.z = -boxSize.z;
+    if (this.pos.z < -boxSize.z) this.pos.z = boxSize.z;
 
   }
 
@@ -145,18 +133,14 @@ class Mold {
     circleColourGreen = map(smoothPitch, 50, 255, 0, 105);
     circleColourBlue = map(smoothPitch, 50, 255, 0, 105);
 
-    //draw hiatory lines
-    beginShape();
-    for(let i = 0; i < this.history.length; i++){
-      let v = this.history[i];
-      vertex(v.x, v.y, v.z);
-    }
-    vertex(this.pos.x, this.pos.y, this.pos.z);
-    endShape();
-
+    push();
     strokeWeight(circleSize);
+    fill(circleColourRed, circleColourGreen, circleColourBlue, circleAlpha);
+    strokeWeight(1);
     stroke(circleColourRed, circleColourGreen, circleColourBlue, circleAlpha);
-    ellipse(this.pos.x, this.pos.y, this.r * 2, this.r * 2);
+    translate(this.pos.x, this.pos.y, this.pos.z);
+    sphere(this.r, 10, 10);
+    pop();
 
   }
 }
